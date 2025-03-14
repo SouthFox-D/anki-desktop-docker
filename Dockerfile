@@ -1,19 +1,18 @@
-FROM lsiobase/kasmvnc:ubuntujammy
-
-ARG ANKI_VERSION=23.12.1
+FROM lsiobase/kasmvnc:arch
 
 RUN \
-  apt-get update && \
-  apt-get install -y anki wget zstd xdg-utils libxcb-xinerama0 libxcb-cursor0 && \
-  dpkg --remove anki && \
-  wget https://github.com/ankitects/anki/releases/download/${ANKI_VERSION}/anki-${ANKI_VERSION}-linux-qt6.tar.zst && \
-  tar --use-compress-program=unzstd -xvf anki-${ANKI_VERSION}-linux-qt6.tar.zst && \
-  cd anki-${ANKI_VERSION}-linux-qt6 && ./install.sh &&  cd .. && \
-  rm -rf anki-${ANKI_VERSION}-linux-qt6 anki-${ANKI_VERSION}-linux-qt6.tar.zst && \
-  apt-get clean && \
+  pacman -Syyu --noconfirm && \
+  pacman -S wget fakeroot --noconfirm && \
+  useradd non_root && \
+  echo "non_root ALL=NOPASSWD: ALL" >> /etc/sudoers && \
+  sudo -u non_root mkdir /tmp/anki_build && \
+  sudo -u non_root wget "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=anki-bin" -O /tmp/anki_build/PKGBUILD && \
+  sudo -u non_root makepkg -si -D /tmp/anki_build --noconfirm && \
+  rm -rf /tmp/anki_build && \
   mkdir -p /config/.local/share && \
   ln -s /config/app/Anki  /config/.local/share/Anki  && \
-  ln -s /config/app/Anki2 /config/.local/share/Anki2
+  ln -s /config/app/Anki2 /config/.local/share/Anki2 && \
+  ln -s /config/app/syncserver /config/.syncserver
 
 VOLUME "/config/app" 
 

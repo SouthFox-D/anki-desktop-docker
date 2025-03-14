@@ -1,0 +1,20 @@
+services:
+  anki-desktop:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - SYNC_PORT=10880
+      - SYNC_USER1=user1:pass1
+      - CUSTOM_USER=user1
+      - PASSWORD=pass1
+    volumes:
+      - ./data/Anki2:/config/app/Anki2
+      - ./data/backups:/config/app/backups
+      - ./data/syncserver:/config/app/backups
+    ports:
+      - 127.0.0.1:10881:3000
+      # Anki Connect port
+      - 127.0.0.1:8765:8765
+      # Anki Sync server port
+      - 127.0.0.1:10880:10880
